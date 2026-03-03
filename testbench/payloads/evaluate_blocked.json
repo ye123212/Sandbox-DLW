@@ -1,0 +1,9 @@
+{
+  "action_type": "shell",
+  "description": "Dangerous recursive delete",
+  "command": "rm -rf ./tmp",
+  "changed_files": [],
+  "repo_path": ".",
+  "session_id": "testbench-manual"
+}
+

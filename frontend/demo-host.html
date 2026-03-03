@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentShield Console</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+      :root {
+        --bg: #000000;
+        --bg-elev: #0A0A0A;
+        --bg-elev-2: #121212;
+        --surface: #050505;
+        --line: #222222;
+        --line-soft: #181818;
+        --text: #EDEDED;
+        --muted: #8F8F8F;
+        --muted-2: #666666;
+        --accent: #EFEFEF;
+        --accent-2: #A0A0A0;
+        --primary: #3b82f6;
+        --ok: #10b981;
+        --warn: #fbbf24;
+        --danger: #ef4444;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.5 'Geist', -apple-system, system-ui, sans-serif;
+        min-height: 100vh;
+      }
+      .shell {
+        max-width: 1320px;
+        margin: 40px auto 96px;
+        padding: 0 20px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 20px;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg-elev);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      }
+      .chat {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 84vh;
+        overflow: hidden;
+      }
+      .chat-head {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg-elev);
+      }
+      .title-block h1 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+      }
+      .title-block p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .badge-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .badge {
+        border: 1px solid var(--line);
+        background: var(--bg-elev-2);
+        border-radius: 4px;
+        padding: 4px 10px;
+        color: var(--muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .chat-body {
+        padding: 24px;
+        overflow: auto;
+        background: var(--bg);
+      }
+      .msg {
+        max-width: 85%;
+        padding: 12px 16px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--bg-elev);
+        color: var(--text);
+        margin: 0 0 16px;
+        white-space: pre-wrap;
+        line-height: 1.6;
+      }
+      .msg.user {
+        margin-left: auto;
+        background: var(--bg-elev-2);
+        color: #fff;
+      }
+      .msg.assistant {
+        margin-right: auto;
+        background: transparent;
+        border-color: transparent;
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .msg.system {
+        margin: 0 auto 16px;
+        max-width: 100%;
+        background: transparent;
+        border-color: var(--line-soft);
+        color: var(--muted-2);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        text-align: center;
+      }
+      .composer {
+        border-top: 1px solid var(--line);
+        padding: 16px 20px;
+        display: grid;
+        gap: 16px;
+        background: var(--bg-elev);
+      }
+      .field-grid {
+        display: grid;
+        grid-template-columns: 1fr 180px 130px;
+        gap: 12px;
+      }
+      .field-grid-repo {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+      }
+      .field-grid-actions {
+        display: grid;
+        grid-template-columns: 1fr 160px;
+        gap: 12px;
+        align-items: end;
+      }
+      .field label {
+        display: block;
+        margin: 0 0 8px;
+        font-size: 11px;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--muted-2);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      textarea, input {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: var(--bg);
+        color: var(--text);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font: inherit;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      textarea::placeholder, input::placeholder {
+        color: var(--muted-2);
+      }
+      textarea:focus, input:focus {
+        border-color: var(--muted);
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+        font-family: inherit;
+      }
+      .btn {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 10px 16px;
+        background: var(--bg-elev-2);
+        color: var(--text);
+        font: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn:hover:not(:disabled) {
+        background: var(--line);
+        color: #fff;
+      }
+      .btn-primary {
+        background: var(--text);
+        color: var(--bg);
+        border-color: var(--text);
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: #fff;
+        border-color: #fff;
+      }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .upload-status {
+        color: var(--muted);
+        font-size: 12px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .side {
+        padding: 20px;
+      }
+      .side h2 {
+        margin: 0 0 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .k-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .k-list li { margin-bottom: 8px; }
+      .tag {
+        border-radius: 4px;
+        border: 1px solid var(--line);
+        padding: 10px 12px;
+        font-size: 12px;
+        margin-top: 12px;
+        color: var(--muted);
+        background: var(--bg);
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .tag.ok { border-color: rgba(16, 185, 129, 0.2); color: var(--ok); }
+      .tag.warn { border-color: rgba(245, 158, 11, 0.2); color: var(--warn); }
+      @media (max-width: 1080px) {
+        .layout { grid-template-columns: 1fr; }
+        .panel.side { order: -1; }
+      }
+      @media (max-width: 760px) {
+        .field-grid, .field-grid-actions { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="layout">
+        <section class="panel chat">
+          <header class="chat-head">
+            <div class="title-block">
+              <h1>AgentShield Conversation</h1>
+              <p>Prompt normally. AgentShield gates tool actions in the floating panel.</p>
+            </div>
+            <div class="badge-row">
+              <span class="badge" id="chat-title">Provider: OpenAI</span>
+              <span class="badge">Session: <code id="session-label">demo-live</code></span>
+            </div>
+          </header>
+
+          <main class="chat-body" id="chat-body">
+            <div class="msg system">Ready. Send a prompt and open the AgentShield panel to monitor gate decisions live.</div>
+          </main>
+
+          <footer class="composer">
+            <div class="field-grid">
+              <div class="field">
+                <label for="prompt-input">Prompt</label>
+                <textarea id="prompt-input" placeholder="Example: Modify utils/db.py to add retry logic and explain risk."></textarea>
+              </div>
+              <div class="field">
+                <label for="model-input">Model</label>
+                <input id="model-input" value="gpt-4o-mini" />
+              </div>
+              <div class="field">
+                <label for="provider-input">Provider</label>
+                <input id="provider-input" value="openai" />
+              </div>
+            </div>
+
+            <div class="field-grid-repo">
+              <div class="field">
+                <label for="repo-input">Repository Path (Local / Uploaded)</label>
+                <input id="repo-input" value="." />
+              </div>
+              <div style="align-self:end;">
+                <input id="repo-file" type="file" accept=".zip" style="display:none;" />
+                <button class="btn" id="upload-repo-btn" type="button">Upload Repo (.zip)</button>
+              </div>
+            </div>
+
+            <div class="upload-status" id="upload-status">Using local repository path mode.</div>
+
+            <div class="field-grid-actions">
+              <div class="field">
+                <label for="session-input">Session ID</label>
+                <input id="session-input" value="demo-live" />
+              </div>
+              <button class="btn btn-primary" id="send-btn">Send Prompt</button>
+            </div>
+          </footer>
+        </section>
+
+        <aside class="panel side">
+          <h2>Operator Notes</h2>
+          <ul class="k-list">
+            <li>Use natural prompts, not manual tool selection.</li>
+            <li>Approve only `require_human` actions in AgentShield panel.</li>
+            <li>`block` actions are denied automatically.</li>
+          </ul>
+          <div class="tag ok">Expected: safe reads and status checks auto-execute.</div>
+          <div class="tag warn">Expected: destructive commands (for example `rm -rf`) are blocked.</div>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      window.AgentShieldConfig = { apiBaseUrl: "http://127.0.0.1:8000", sessionId: "demo-live" };
+    </script>
+    <script src="/static/agentshield-overlay.js"></script>
+    <script>
+      const chatBody = document.getElementById("chat-body");
+      const chatTitle = document.getElementById("chat-title");
+      const promptInput = document.getElementById("prompt-input");
+      const modelInput = document.getElementById("model-input");
+      const providerInput = document.getElementById("provider-input");
+      const repoInput = document.getElementById("repo-input");
+      const repoFileInput = document.getElementById("repo-file");
+      const uploadRepoBtn = document.getElementById("upload-repo-btn");
+      const uploadStatus = document.getElementById("upload-status");
+      const sessionInput = document.getElementById("session-input");
+      const sessionLabel = document.getElementById("session-label");
+      const sendBtn = document.getElementById("send-btn");
+
+      function addMessage(role, text) {
+        const div = document.createElement("div");
+        div.className = `msg ${role}`;
+        div.textContent = text;
+        chatBody.appendChild(div);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function syncHeader() {
+        const provider = providerInput.value.trim().toLowerCase() === "openai" ? "OpenAI" : "Gemini";
+        chatTitle.textContent = `Provider: ${provider}`;
+      }
+
+      async function uploadRepoZip(file) {
+        const toBase64 = (blob) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const raw = String(reader.result || "");
+              const comma = raw.indexOf(",");
+              resolve(comma >= 0 ? raw.slice(comma + 1) : raw);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        uploadStatus.textContent = "Uploading repository archive...";
+        try {
+          const zipBase64 = await toBase64(file);
+          const response = await fetch("http://127.0.0.1:8000/api/v1/repos/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: file.name, zip_base64: zipBase64 }),
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || `API ${response.status}`);
+          repoInput.value = payload.repo_path;
+          uploadStatus.textContent = `Uploaded ${file.name} (${payload.file_count} files).`;
+        } catch (err) {
+          uploadStatus.textContent = `Upload failed: ${String(err.message || err)}`;
+        }
+      }
+
+      async function runChat() {
+        const prompt = promptInput.value.trim();
+        const model = modelInput.value.trim() || "gpt-4o-mini";
+        const provider = providerInput.value.trim().toLowerCase() === "openai" ? "openai" : "gemini";
+        const sessionId = sessionInput.value.trim() || "demo-live";
+        const repoPath = repoInput.value.trim() || ".";
+        syncHeader();
+        if (!prompt) return;
+
+        window.AgentShieldConfig.sessionId = sessionId;
+        sessionLabel.textContent = sessionId;
+        addMessage("user", prompt);
+        addMessage("system", "Agent running. Check AgentShield panel for risk and gate decisions.");
+        promptInput.value = "";
+        sendBtn.disabled = true;
+
+        try {
+          const response = await fetch("http://127.0.0.1:8000/api/v1/chat/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              prompt,
+              provider,
+              model,
+              session_id: sessionId,
+              max_steps: 8,
+              repo_path: repoPath
+            }),
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || `API ${response.status}`);
+          addMessage("assistant", payload.final_text || "(No response)");
+        } catch (err) {
+          addMessage("system", `Run failed: ${String(err.message || err)}`);
+        } finally {
+          sendBtn.disabled = false;
+        }
+      }
+
+      sendBtn.addEventListener("click", runChat);
+      providerInput.addEventListener("input", syncHeader);
+      uploadRepoBtn.addEventListener("click", () => repoFileInput.click());
+      repoFileInput.addEventListener("change", () => {
+        const file = repoFileInput.files && repoFileInput.files[0];
+        if (file) uploadRepoZip(file);
+      });
+      promptInput.addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "Enter") runChat();
+      });
+      syncHeader();
+    </script>
+  </body>
+</html>

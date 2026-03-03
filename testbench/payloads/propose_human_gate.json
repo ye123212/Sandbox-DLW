@@ -1,0 +1,9 @@
+{
+  "action_type": "shell",
+  "description": "Push branch to remote",
+  "command": "git push origin main",
+  "changed_files": [],
+  "repo_path": ".",
+  "session_id": "testbench-manual"
+}
+

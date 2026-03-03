@@ -1,0 +1,9 @@
+{
+  "action_type": "file_read",
+  "description": "Read README for context",
+  "target_path": "README.md",
+  "changed_files": [],
+  "repo_path": ".",
+  "session_id": "testbench-manual"
+}
+
