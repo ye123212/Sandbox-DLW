@@ -37,10 +37,6 @@ pip install -r requirements.txt
 Run from the project root (`agentshield/`).
 
 ### PowerShell (Windows)
-```powershell
-$env:OPENAI_API_KEY="your_key"
-
-```
 
 ```powershell
 python -m venv .venv
@@ -61,6 +57,7 @@ pip install -r requirements.txt
 Start the API server:
 
 ```powershell
+$env:OPENAI_API_KEY="your_key"
 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
